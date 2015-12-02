@@ -93,7 +93,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public void onConnectionSuspended(int i) {
 
     }
-
+//yolotestbranche
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
