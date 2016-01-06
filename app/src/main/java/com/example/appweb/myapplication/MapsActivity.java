@@ -1,12 +1,18 @@
 package com.example.appweb.myapplication;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.widget.TextView;
 
@@ -19,33 +25,22 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MapsActivity extends FragmentActivity implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    private GoogleMap mMap;
-    private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
-    private double latitude = 0;
-    private double longitude = 0;
-    private LocationRequest mLocationRequest = new LocationRequest();
-    private Location mylocation;
-    private ViewPager mPager;
-    private PagerAdapter mPagerAdapter;
-    private static final int NUM_PAGES =3;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // création du client
+        //Création du client
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -57,17 +52,35 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        //création de la map
+        //Création de la Map
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        //Création du ViewPager
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
 
+        //Vérification de la connexion
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+            HTTPrequests req = new HTTPrequests();
+            req.execute();
+        } else {
+            alerte("Pas de connexion");
+        }
     }
+
+    //region ViewPager
+
+    private ViewPager mPager;
+    private ScreenSlidePagerAdapter mPagerAdapter;
+    private static final int NUM_PAGES =3;
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
         public ScreenSlidePagerAdapter(FragmentManager fm) {
@@ -76,7 +89,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         @Override
         public Fragment getItem(int position) {
-            return new ScreenSlidePageFragment();
+            switch (position){
+                case 0: return new ScreenSlidePageFragment();
+                case 1: return new ScreenSlidePageFragment2();
+                case 2: return new ScreenSlidePageFragment3();
+                default:
+                    return null;
+            }
         }
 
         @Override
@@ -84,12 +103,43 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             return NUM_PAGES;
         }
     }
+
+    public void updatefragments_slides(){
+        if(mPager.getCurrentItem()==0) {
+            TextView latitudeset = (TextView) findViewById(R.id.mLatitudeText);
+            latitudeset.setText(String.valueOf(latitude));
+            TextView longitudeset = (TextView) findViewById(R.id.mLongitudeText);
+            longitudeset.setText(String.valueOf(longitude));
+            TextView JSONset = (TextView) findViewById(R.id.mJSON);
+            JSONset.setText(JSONTEST);
+        }
+        else if(mPager.getCurrentItem()==1)
+        {
+
+        }
+        else if(mPager.getCurrentItem()==2)
+        {
+
+        }
+    }
+
+    //endregion
+
+    //region GoogleMap
+
+    private GoogleMap mMap;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+    private double latitude = 0;
+    private double longitude = 0;
+    private LocationRequest mLocationRequest = new LocationRequest();
+    private Location mylocation;
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
-
 
         /* Add a marker in mylocation and move the camera
         LatLng mylocation = new LatLng(latitude, longitude);
@@ -104,10 +154,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         if (mLastLocation != null) {
             latitude=mLastLocation.getLatitude();
             longitude=mLastLocation.getLongitude();
-            TextView latitudetest= (TextView) findViewById(R.id.mLatitudeText);
-            latitudetest.setText(String.valueOf(latitude));
-            TextView longitudetest= (TextView)findViewById(R.id.mLongitudeText);
-            longitudetest.setText(String.valueOf(longitude));
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
@@ -116,7 +162,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public void onConnectionSuspended(int i) {
 
     }
-//yolotestbranche
+
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
@@ -126,48 +172,84 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public void onLocationChanged(Location location) {
         mylocation = location;
         latitude=mylocation.getLatitude();
-        longitude=mylocation.getLongitude();
-        TextView latitudetest= (TextView) findViewById(R.id.mLatitudeText);
-        latitudetest.setText(String.valueOf(latitude));
-        TextView longitudetest= (TextView)findViewById(R.id.mLongitudeText);
-        longitudetest.setText(String.valueOf(longitude));
+        longitude= mylocation.getLongitude();
+
+        HTTPrequests req = new HTTPrequests();
+        req.execute();
+        updatefragments_slides();
 
         LatLng movelocation = new LatLng(latitude, longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(movelocation));
+    }
 
-        String request = "http://api.openweathermap.org/data/2.5/weather?lat="+String.valueOf(latitude)+"&lon="+String.valueOf(longitude)+"&APPID=d63e568fa914f6354620fe3481c3921c";
+    //endregion
 
-        try {
-            sendGet(request);
-        } catch (Exception e) {
-            e.printStackTrace();
+    //region OpenWeatherMap
+    String JSONTEST = new String();
+
+    private class HTTPrequests extends AsyncTask<Void, Integer, String> {
+
+        String response;
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            String request = "http://api.openweathermap.org/data/2.5/weather?lat="+String.valueOf(latitude)+"&lon="+String.valueOf(longitude)+"&APPID=d63e568fa914f6354620fe3481c3921c";
+
+            try {
+                response = sendGet(request);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            JSONTEST = response;
+        }
+
+        private String sendGet(String url) throws Exception {
+
+            StringBuffer chaine = new StringBuffer("");
+            try {
+                URL address = new URL(url);
+                HttpURLConnection connection = (HttpURLConnection) address.openConnection();
+                connection.setRequestProperty("User-Agent", "");
+                connection.setRequestMethod("GET");
+                connection.setDoInput(true);
+                connection.connect();
+
+                InputStream inputStream = connection.getInputStream();
+
+                BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
+                String line = "";
+                while ((line = rd.readLine()) != null) {
+                    chaine.append(line);
+                }
+
+            } catch (IOException e) {
+                // writing exception to log
+                e.printStackTrace();
+            }
+
+            return chaine.toString();
+
         }
     }
 
-    private void sendGet(String url) throws Exception {
+    //endregion
 
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-        con.setRequestMethod("GET");
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        //print result
-        System.out.println(response.toString());
-
+    private void alerte (String alerttext){
+        AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
+        alertDialog.setTitle("Alerte");
+        alertDialog.setMessage(alerttext);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
-
 }
