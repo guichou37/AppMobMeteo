@@ -15,6 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +33,8 @@ public class ScreenSlidePageFragment extends Fragment {
     private double longitude;
     TextView latitudeset;
     TextView longitudeset;
-    TextView JSONset;
+    TextView meteoset;
+    JSONObject result_json;
 
     public static ScreenSlidePageFragment newInstance(int p, double l1, double l2){
         ScreenSlidePageFragment sspf = new ScreenSlidePageFragment(); //Crée une nouvelle instance de la classe
@@ -54,6 +59,10 @@ public class ScreenSlidePageFragment extends Fragment {
         //Création de la vue
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_slide, container, false);
 
+        latitudeset = (TextView) rootView.findViewById(R.id.mLatitudeText);
+        longitudeset = (TextView) rootView.findViewById(R.id.mLongitudeText);
+        meteoset = (TextView) rootView.findViewById(R.id.meteo);
+
         //Vérification de la connexion
         ConnectivityManager connMgr = (ConnectivityManager)
                 this.getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -65,16 +74,10 @@ public class ScreenSlidePageFragment extends Fragment {
         } else {
             alerte("Pas de connexion");
         }
-
-        latitudeset = (TextView) rootView.findViewById(R.id.mLatitudeText);
-        longitudeset = (TextView) rootView.findViewById(R.id.mLongitudeText);
-        JSONset = (TextView) rootView.findViewById(R.id.mJSON);
-
         return rootView;
     }
 
     //region OpenWeatherMap
-    String JSONTEST;
 
     private class HTTPrequests extends AsyncTask<Void, Integer, String> { //L'AsyncTask est nécessaire pour lancer les requêtes en fond.
 
@@ -82,12 +85,7 @@ public class ScreenSlidePageFragment extends Fragment {
 
         @Override
         protected String doInBackground(Void... params) {
-            String request;
-            if(day==0) {
-                request = "http://api.openweathermap.org/data/2.5/weather?lat=" + String.valueOf(latitude) + "&lon=" + String.valueOf(longitude) + "&APPID=d63e568fa914f6354620fe3481c3921c";
-            }else{
-                request = "http://api.openweathermap.org/data/2.5/forecast?lat=" + String.valueOf(latitude) + "&lon=" + String.valueOf(longitude) + "&APPID=d63e568fa914f6354620fe3481c3921c";
-            }
+            String request = "http://api.openweathermap.org/data/2.5/forecast?lat=" + String.valueOf(latitude) + "&lon=" + String.valueOf(longitude) + "&APPID=d63e568fa914f6354620fe3481c3921c";
 
             try {
                 response = sendGet(request);
@@ -99,10 +97,18 @@ public class ScreenSlidePageFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String result) {
-            JSONTEST = response;
+            try {
+                result_json = new JSONObject(result);
+                JSONArray list_json = result_json.getJSONArray("list");
+                JSONObject today = list_json.getJSONObject(day*8);
+                JSONArray weather_json = today.getJSONArray("weather");
+                JSONObject weather_json0 = weather_json.getJSONObject(0);
+                meteoset.setText(weather_json0.getString("description"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             latitudeset.setText(String.valueOf(latitude));
             longitudeset.setText(String.valueOf(longitude));
-            JSONset.setText(JSONTEST);
         }
 
         private String sendGet(String url) throws Exception {

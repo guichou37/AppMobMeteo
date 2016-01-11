@@ -27,8 +27,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Longitude"
-        android:id="@+id/mJSON"
+        android:text="meteo"
+        android:id="@+id/meteo"
         android:layout_gravity="center"
         android:editable="true" />
 
