@@ -125,7 +125,7 @@ public class ScreenSlidePageFragment extends Fragment {
                 InputStream inputStream = connection.getInputStream();
 
                 BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
+                String line="";
                 while ((line = rd.readLine()) != null) {
                     chaine.append(line);
                 }
