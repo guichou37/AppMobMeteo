@@ -1,5 +1,9 @@
 package com.example.appweb.myapplication;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 
 import android.support.v4.app.Fragment;
@@ -9,6 +13,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.SearchView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -20,14 +26,22 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.vision.barcode.Barcode;
+
+import java.io.IOException;
+import java.util.List;
 
 
 public class MapsActivity extends FragmentActivity implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    SearchView search;
+    boolean auto = true;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        final Geocoder coder = new Geocoder(this);
         //Création du client
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -45,6 +59,72 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mapFragment.getMap().setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+
+            @Override
+            public boolean onMyLocationButtonClick() {
+                mPager = (ViewPager) findViewById(R.id.pager);
+                mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+                mPager.setAdapter(mPagerAdapter);
+                auto = true;
+                search.setIconified(true);
+                return false;
+            }
+        });
+        //region Recherche
+        search = (SearchView) findViewById(R.id.searchView);
+        //Au moment de la recherche
+        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //SET Latitude and Longitude manually
+                List<Address> address;
+
+                try {
+                    address = coder.getFromLocationName(query,5);
+                    if(address.size()!=0){
+                        auto = false;
+                        Address location=address.get(0);
+                        latitude=location.getLatitude();
+                        longitude=location.getLongitude();
+                    }
+                    else{
+                        auto = true;
+                        alerte("ACHTUNG ALARM");
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                hideSoftKeyboard();
+                mPager = (ViewPager) findViewById(R.id.pager);
+                mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+                mPager.setAdapter(mPagerAdapter);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        //A la sortie de la recherche
+        search.setOnCloseListener(new SearchView.OnCloseListener(){
+
+            @Override
+            public boolean onClose() {
+                auto = true;
+                mPager = (ViewPager) findViewById(R.id.pager);
+                mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+                mPager.setAdapter(mPagerAdapter);
+                //SET Lat and Long back to GPS
+                return false;
+            }
+        });
+        //endregion
 
     }
 
@@ -80,10 +160,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 
-        //Création du ViewPager
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
+
     }
 
     @Override
@@ -99,12 +179,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     @Override
     public void onLocationChanged(Location location) {
         mylocation = location;
-        latitude=mylocation.getLatitude();
-        longitude= mylocation.getLongitude();
-        LatLng movelocation = new LatLng(latitude, longitude);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(movelocation));
-        Log.d("debug", latitude + " " + longitude);
+        if (auto == true) {
+            latitude=mylocation.getLatitude();
+            longitude= mylocation.getLongitude();
+            LatLng movelocation = new LatLng(latitude, longitude);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(movelocation));
+        }
     }
+
 
     //endregion
 
@@ -138,5 +220,27 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     //endregion
 
+    public void hideSoftKeyboard(){
+        if(getCurrentFocus()!=null){
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
+        }
+    }
+
+    private void alerte (String alerttext){
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle("Alerte");
+        alertDialog.setMessage(alerttext);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
+
 
 }
+
