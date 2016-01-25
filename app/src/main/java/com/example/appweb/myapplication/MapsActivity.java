@@ -1,11 +1,13 @@
 package com.example.appweb.myapplication;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 
+import android.location.LocationManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -50,6 +52,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
+
+        final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+
+        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+            alerte("Le GPS est désactivé");
+        }
 
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
@@ -96,7 +104,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                     }
                     else{
                         auto = true;
-                        alerte("ACHTUNG ALARM");
+                        alerte("Aucune ville trouvée");
                     }
 
                 } catch (IOException e) {
