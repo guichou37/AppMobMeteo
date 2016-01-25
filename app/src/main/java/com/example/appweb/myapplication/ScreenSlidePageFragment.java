@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 
 public class ScreenSlidePageFragment extends Fragment {
@@ -45,6 +46,14 @@ public class ScreenSlidePageFragment extends Fragment {
     ImageView icon15;
     ImageView icon18;
     ImageView icon21;
+    TextView itemp0;
+    TextView itemp3;
+    TextView itemp6;
+    TextView itemp9;
+    TextView itemp12;
+    TextView itemp15;
+    TextView itemp18;
+    TextView itemp21;
     //endregion
     JSONObject result_json;
     String iconsrc;
@@ -83,6 +92,14 @@ public class ScreenSlidePageFragment extends Fragment {
         icon15 = (ImageView) rootView.findViewById(R.id.img15);
         icon18 = (ImageView) rootView.findViewById(R.id.img18);
         icon21 = (ImageView) rootView.findViewById(R.id.img21);
+        itemp0 = (TextView) rootView.findViewById(R.id.t0);
+        itemp3 = (TextView) rootView.findViewById(R.id.t3);
+        itemp6 = (TextView) rootView.findViewById(R.id.t6);
+        itemp9 = (TextView) rootView.findViewById(R.id.t9);
+        itemp12 = (TextView) rootView.findViewById(R.id.t12);
+        itemp15 = (TextView) rootView.findViewById(R.id.t15);
+        itemp18 = (TextView) rootView.findViewById(R.id.t18);
+        itemp21 = (TextView) rootView.findViewById(R.id.t21);
         //endregion
         switch (day)
         {
@@ -156,22 +173,30 @@ public class ScreenSlidePageFragment extends Fragment {
                     {
                         d=d-1;
                         switch (i){
-                            case 8 : setIcons(icon21,result_json,i-1-decalage);
-                                break;
-                            case 7 : setIcons(icon18,result_json,i-1-decalage);
-                                break;
-                            case 6 : setIcons(icon15,result_json,i-1-decalage);
-                                break;
+                            case 8 :    setIcons(icon21,result_json,i-1-decalage);
+                                        setTemp(itemp21,result_json,i-1-decalage);
+                                    break;
+                            case 7 :    setIcons(icon18,result_json,i-1-decalage);
+                                        setTemp(itemp18, result_json, i - 1 - decalage);
+                                    break;
+                            case 6 :    setIcons(icon15,result_json,i-1-decalage);
+                                        setTemp(itemp15, result_json, i - 1 - decalage);
+                                    break;
                             case 5 : setIcons(icon12,result_json,i-1-decalage);
-                                break;
+                                        setTemp(itemp12, result_json, i - 1 - decalage);
+                                    break;
                             case 4 : setIcons(icon9,result_json,i-1-decalage);
-                                break;
+                                        setTemp(itemp9, result_json, i - 1 - decalage);
+                                    break;
                             case 3 : setIcons(icon6,result_json,i-1-decalage);
-                                break;
+                                        setTemp(itemp6, result_json, i - 1 - decalage);
+                                    break;
                             case 2 : setIcons(icon3,result_json,i-1-decalage);
-                                break;
+                                        setTemp(itemp3, result_json, i - 1 - decalage);
+                                    break;
                             case 1 : setIcons(icon0,result_json,i-1-decalage);
-                                break;
+                                        setTemp(itemp0, result_json, i - 1 - decalage);
+                                    break;
                         }
                         i--;
 
@@ -186,20 +211,28 @@ public class ScreenSlidePageFragment extends Fragment {
                     {
                         switch (i){
                             case 8 : setIcons(icon21,result_json,i-1+day*8-decalage);
+                                setTemp(itemp21, result_json, i - 1 + day * 8 - decalage);
                                 break;
                             case 7 : setIcons(icon18,result_json,i-1+day*8-decalage);
+                                setTemp(itemp18, result_json, i - 1 + day * 8 - decalage);
                                 break;
                             case 6 : setIcons(icon15,result_json,i-1+day*8-decalage);
+                                setTemp(itemp15, result_json, i - 1 + day * 8 - decalage);
                                 break;
                             case 5 : setIcons(icon12,result_json,i-1+day*8-decalage);
+                                setTemp(itemp12, result_json, i - 1 + day * 8 - decalage);
                                 break;
                             case 4 : setIcons(icon9,result_json,i-1+day*8-decalage);
+                                setTemp(itemp9, result_json, i - 1 + day * 8 - decalage);
                                 break;
                             case 3 : setIcons(icon6,result_json,i-1+day*8-decalage);
+                                setTemp(itemp6, result_json, i - 1 + day * 8 - decalage);
                                 break;
                             case 2 : setIcons(icon3,result_json,i-1+day*8-decalage);
+                                setTemp(itemp3, result_json, i - 1 + day * 8 - decalage);
                                 break;
                             case 1 : setIcons(icon0,result_json,i-1+day*8-decalage);
+                                setTemp(itemp0, result_json, i - 1 + day * 8 - decalage);
                                 break;
                         }
                         i--;
@@ -312,6 +345,23 @@ public class ScreenSlidePageFragment extends Fragment {
             default : imageView.setImageResource(R.drawable.inone);
                 break;
         }
+    }
+    public void setTemp(TextView textView,JSONObject json,int n) {
+        double tempK = 0;
+        try {
+            JSONArray list_json = json.getJSONArray("list");
+            JSONObject today = list_json.getJSONObject(n);
+            JSONObject mainobject = today.getJSONObject("main");
+            tempK = mainobject.getDouble("temp");
+            //Résultat en Kelvin
+        } catch (JSONException e) {
+            e.printStackTrace();
+        };
+        double temp = tempK-273;
+        DecimalFormat form = new DecimalFormat("0.0");
+        textView.setText(form.format(temp)+"°");
+
+
     }
 
 }
