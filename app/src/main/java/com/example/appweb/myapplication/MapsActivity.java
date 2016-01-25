@@ -42,6 +42,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final Geocoder coder = new Geocoder(this);
+        float zoom=17;
         //Création du client
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -64,6 +65,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
             @Override
             public boolean onMyLocationButtonClick() {
+
                 mPager = (ViewPager) findViewById(R.id.pager);
                 mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
                 mPager.setAdapter(mPagerAdapter);
@@ -89,6 +91,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                         Address location=address.get(0);
                         latitude=location.getLatitude();
                         longitude=location.getLongitude();
+                        LatLng movelocation = new LatLng(latitude, longitude);
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(movelocation));
                     }
                     else{
                         auto = true;
@@ -100,6 +104,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 }
 
                 hideSoftKeyboard();
+
                 mPager = (ViewPager) findViewById(R.id.pager);
                 mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
                 mPager.setAdapter(mPagerAdapter);
@@ -128,6 +133,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        mPager.setAdapter(mPagerAdapter);
+    }
     //region GoogleMap
 
     private GoogleMap mMap;
@@ -143,11 +155,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
-
-        /* Add a marker in mylocation and move the camera
-        LatLng mylocation = new LatLng(latitude, longitude);
-        mMap.addMarker(new MarkerOptions().position(mylocation).title("Marker"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(mylocation)); */
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
+        //mMap.addMarker(new MarkerOptions().position(mylocation).title("Marker"));
     }
 
     @Override

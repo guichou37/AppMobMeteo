@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="texteh">16sp</dimen>
+    <dimen name="iconh">60dp</dimen>
+</resources>

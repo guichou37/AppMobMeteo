@@ -2,34 +2,228 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="100">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="55"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        >
+
+        <TextView style="?android:textAppearanceMedium"
+            android:id="@+id/cityView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="City"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:textSize="20dp"
+            />
 
 
-  <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Latitude"
-        android:id="@+id/mLatitudeText"
-        android:layout_gravity="left|center_vertical"
-        android:editable="true" />
+        <ImageView
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:id="@+id/iconView"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Longitude"
-        android:id="@+id/mLongitudeText"
-        android:layout_gravity="center"
-        android:editable="true" />
+        <TextView style="?android:textAppearanceMedium"
+            android:id="@+id/dayView"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:text="Day"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:textSize="20dp"
+            />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="meteo"
-        android:id="@+id/meteo"
-        android:layout_gravity="center"
-        android:editable="true" />
+
+    </LinearLayout>
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/colorPrimary"
+        android:layout_weight="45"
+        android:weightSum="3">
+        <TableRow
+            android:gravity="center_horizontal|center_vertical"
+            android:id="@+id/tableRow1"
+            android:layout_weight="1"
+            android:weightSum="8">
+            <TextView
+                android:text="00h"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:text="03h"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:text="06h"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:text="09h"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:text="12h"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:text="15h"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:text="18h"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:text="21h"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+        </TableRow>
+        <TableRow
+            android:gravity="center_horizontal|center_vertical"
+            android:id="@+id/tableRow2"
+            android:layout_weight="1"
+            android:weightSum="8">
+            <TextView
+                android:id="@+id/t0"
+                android:text="-"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:id="@+id/t3"
+                android:text="-"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:id="@+id/t6"
+                android:text="-"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:id="@+id/t9"
+                android:text="-"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:id="@+id/t12"
+                android:text="-"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:id="@+id/t15"
+                android:text="-"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:id="@+id/t18"
+                android:text="-"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center" />
+            <TextView
+                android:id="@+id/t21"
+                android:text="-"
+                android:textSize="@dimen/texteh"
+                android:layout_weight="1"
+                android:gravity="center"/>
+        </TableRow>
+        <TableRow
+            android:gravity="center_horizontal|center_vertical"
+            android:id="@+id/tableRow3"
+            android:layout_weight="1"
+            android:weightSum="8">
+
+            <ImageView
+                android:layout_height="@dimen/iconh"
+                android:layout_width="fill_parent"
+                android:id="@+id/img0"
+                android:src="@drawable/inone"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+            <ImageView
+                android:layout_height="@dimen/iconh"
+                android:layout_width="fill_parent"
+                android:id="@+id/img3"
+                android:src="@drawable/inone"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+            <ImageView
+                android:layout_height="@dimen/iconh"
+                android:layout_width="fill_parent"
+                android:id="@+id/img6"
+                android:src="@drawable/inone"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+            <ImageView
+                android:layout_height="@dimen/iconh"
+                android:layout_width="fill_parent"
+                android:id="@+id/img9"
+                android:src="@drawable/inone"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+            <ImageView
+                android:layout_height="@dimen/iconh"
+                android:layout_width="fill_parent"
+                android:id="@+id/img12"
+                android:src="@drawable/inone"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+            <ImageView
+                android:layout_height="@dimen/iconh"
+                android:layout_width="fill_parent"
+                android:id="@+id/img15"
+                android:src="@drawable/inone"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+            <ImageView
+                android:layout_height="@dimen/iconh"
+                android:layout_width="fill_parent"
+                android:id="@+id/img18"
+                android:src="@drawable/inone"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+            <ImageView
+                android:layout_height="@dimen/iconh"
+                android:layout_width="fill_parent"
+                android:id="@+id/img21"
+                android:src="@drawable/inone"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+        </TableRow>
+    </TableLayout>
 
 </LinearLayout>
