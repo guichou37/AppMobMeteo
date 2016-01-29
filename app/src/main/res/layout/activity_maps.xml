@@ -2,12 +2,12 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="10">
+    android:weightSum="100">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="4"
+        android:layout_weight="55"
         android:layout_gravity="center_horizontal"
         android:clickable="false">
 
@@ -30,26 +30,16 @@
 
     <FrameLayout android:layout_width="match_parent"
     android:layout_height="fill_parent"
-    android:layout_weight="6"
+    android:layout_weight="45"
     android:layout_gravity="center_horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Latitude"
-            android:id="@+id/mLatitudeText"
-            android:layout_gravity="left|center_vertical"
-            android:editable="true" />
+        <android.support.v4.view.ViewPager
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/pager"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Longitude"
-            android:id="@+id/mLongitudeText"
-            android:layout_gravity="center"
-            android:editable="true" />
+
     </FrameLayout>
 
 </LinearLayout>

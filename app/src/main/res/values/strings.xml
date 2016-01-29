@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Dewdrop</string>
     <string name="title_activity_maps">Map</string>
+    <string name="day0">Aujourd\'hui</string>
+    <string name="day1">Demain</string>
+    <string name="day2">Après-demain</string>
 </resources>
