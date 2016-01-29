@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 
@@ -28,7 +27,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.vision.barcode.Barcode;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,6 +35,7 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     SearchView search;
+    //auto défini si les coordonnées GPS doivent être utilisées
     boolean auto = true;
 
 
@@ -44,8 +43,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final Geocoder coder = new Geocoder(this);
-        float zoom=17;
-        //Création du client
+        //Création du client Google
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -55,33 +53,35 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
 
+        //Test d'activation du GPS du téléphone
         if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
             alerte("Le GPS est désactivé");
+            //La désactivation du GPS n'entraine pas d'erreur
         }
 
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        //Création de la Map
+        //Création de la Map dans le layout
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        //Affichage et paramétrage du bouton de localisation
         mapFragment.getMap().setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-
             @Override
             public boolean onMyLocationButtonClick() {
-
                 mPager = (ViewPager) findViewById(R.id.pager);
                 mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
                 mPager.setAdapter(mPagerAdapter);
                 auto = true;
                 search.setIconified(true);
+                hideSoftKeyboard();
                 return false;
             }
         });
+
         //region Recherche
         search = (SearchView) findViewById(R.id.searchView);
         //Au moment de la recherche
@@ -89,7 +89,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                //SET Latitude and Longitude manually
+                //SET Latitude et Longitude manuellement à partir d'un nom de ville
                 List<Address> address;
 
                 try {
@@ -113,6 +113,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
                 hideSoftKeyboard();
 
+                //Rechargement des pages avec les nouvelles coordonnées
                 mPager = (ViewPager) findViewById(R.id.pager);
                 mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
                 mPager.setAdapter(mPagerAdapter);
@@ -124,12 +125,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 return false;
             }
         });
-        //A la sortie de la recherche
+        //A la sortie de la barre de recherche
         search.setOnCloseListener(new SearchView.OnCloseListener(){
-
             @Override
             public boolean onClose() {
                 auto = true;
+                //Rechargement des pages avec les nouvelles coordonnées
                 mPager = (ViewPager) findViewById(R.id.pager);
                 mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
                 mPager.setAdapter(mPagerAdapter);
@@ -144,17 +145,18 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     @Override
     protected void onResume(){
         super.onResume();
+        //Rechargement des pages au retour
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
     }
-    //region GoogleMap
 
+    //region GoogleMap
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
-    private double latitude = 0;
-    private double longitude = 0;
+    private double latitude = 6.91667;
+    private double longitude = 79.83333;
     private LocationRequest mLocationRequest = new LocationRequest();
     private Location mylocation;
 
@@ -164,7 +166,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
-        //mMap.addMarker(new MarkerOptions().position(mylocation).title("Marker"));
     }
 
     @Override
@@ -175,8 +176,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             latitude=mLastLocation.getLatitude();
             longitude=mLastLocation.getLongitude();
         }
+        //Demande de localisation du client Google
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 
+        //Rechargement des pages avec les nouvelles coordonnées
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
@@ -193,6 +196,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     }
 
+    //Suivi de changement de position
     @Override
     public void onLocationChanged(Location location) {
         mylocation = location;
@@ -203,8 +207,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             mMap.moveCamera(CameraUpdateFactory.newLatLng(movelocation));
         }
     }
-
-
     //endregion
 
     //region ViewPager
@@ -217,7 +219,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         public ScreenSlidePagerAdapter(FragmentManager fm) {
             super(fm);
         }
-
+        //Création des fragments du PageViewer avec les numéros de pages et les coordonnées
         @Override
         public Fragment getItem(int position) {
             switch (position){
@@ -237,6 +239,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     //endregion
 
+    //Permet de masquer le clavier
     public void hideSoftKeyboard(){
         if(getCurrentFocus()!=null){
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -244,6 +247,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
     }
 
+    //Permet d'afficher une alerte avec le texte alerttext
     private void alerte (String alerttext){
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle("Alerte");

@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +55,6 @@ public class ScreenSlidePageFragment extends Fragment {
     TextView itemp21;
     //endregion
     JSONObject result_json;
-    String iconsrc;
 
     public static ScreenSlidePageFragment newInstance(int p, double l1, double l2){
         ScreenSlidePageFragment sspf = new ScreenSlidePageFragment(); //Crée une nouvelle instance de la classe
@@ -103,11 +101,11 @@ public class ScreenSlidePageFragment extends Fragment {
         //endregion
         switch (day)
         {
-            case 0 : dayView.setText("Aujourd'hui");
+            case 0 : dayView.setText(R.string.day0);
             break;
-            case 1 : dayView.setText("Demain");
+            case 1 : dayView.setText(R.string.day1);
                 break;
-            case 2 : dayView.setText("Après-demain");
+            case 2 : dayView.setText(R.string.day2);
                 break;
             default:
             break;
@@ -130,6 +128,7 @@ public class ScreenSlidePageFragment extends Fragment {
 
     //region OpenWeatherMap
 
+    //La définition en AsyncTask permet d'effectuer les requêtes et remplissage des layouts en arrière-plan
     private class HTTPrequests extends AsyncTask<Void, Integer, String> { //L'AsyncTask est nécessaire pour lancer les requêtes en fond.
 
         String response;
@@ -146,10 +145,9 @@ public class ScreenSlidePageFragment extends Fragment {
             return response;
         }
 
+        //Remplissage des layouts après appel à l'API
         @Override
         protected void onPostExecute(String result) {
-
-
                 Calendar c = Calendar.getInstance();
                 int hours = c.get(Calendar.HOUR_OF_DAY);
                 int decalage = (int) Math.floor(hours / 3);
@@ -165,7 +163,7 @@ public class ScreenSlidePageFragment extends Fragment {
             {
                 e.printStackTrace();
             }
-
+                //Remplissage des layout selon le jour
                 if (day==0)
                 {
                     int i=8;
@@ -204,7 +202,7 @@ public class ScreenSlidePageFragment extends Fragment {
 
                     }
 
-                else if (day!=0)
+                else
                 {
                     int i=8;
                     while(i!=0)
@@ -242,6 +240,7 @@ public class ScreenSlidePageFragment extends Fragment {
 
         }
 
+        //Permet d'effectuer des requêtes GET à une url
         private String sendGet(String url) throws Exception {
 
             StringBuffer chaine = new StringBuffer("");
@@ -256,6 +255,7 @@ public class ScreenSlidePageFragment extends Fragment {
                 InputStream inputStream = connection.getInputStream();
 
                 BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
+                //Cette initialisation semble redondante mais est nécessaire pour vider le buffer précédent
                 String line="";
                 while ((line = rd.readLine()) != null) {
                     chaine.append(line);
@@ -269,12 +269,6 @@ public class ScreenSlidePageFragment extends Fragment {
             return chaine.toString();
 
         }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.d("debug", "vue" + day + "detruite");
     }
 
     //endregion
@@ -292,9 +286,10 @@ public class ScreenSlidePageFragment extends Fragment {
         alertDialog.show();
     }
 
+    //Ajoute les icones météo au layout à partir du json pour l'élément souhaité
     public void setIcons(ImageView imageView , JSONObject json, int n){
         if(n>24){imageView.setImageResource(R.drawable.inone);return;}
-        String src = null;
+        String src = "00";
         try {
             JSONArray list_json = json.getJSONArray("list");
             JSONObject today = list_json.getJSONObject(n);
@@ -346,6 +341,8 @@ public class ScreenSlidePageFragment extends Fragment {
                 break;
         }
     }
+
+    //Ajoute les températures au layout à partir du json pour l'élément souhaité
     public void setTemp(TextView textView,JSONObject json,int n) {
         double tempK = 0;
         try {
@@ -356,10 +353,11 @@ public class ScreenSlidePageFragment extends Fragment {
             //Résultat en Kelvin
         } catch (JSONException e) {
             e.printStackTrace();
-        };
+        }
         double temp = tempK-273;
         DecimalFormat form = new DecimalFormat("0.0");
-        textView.setText(form.format(temp)+"°");
+        String toprint = form.format(temp)+"°";
+        textView.setText(toprint);
 
 
     }
