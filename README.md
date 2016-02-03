@@ -10,3 +10,4 @@ Une grande partie des services proposés par Dewdrop utilisent les technologies 
 
 La météo est fournie par l’API d’OpenWeatherMap, une plateforme open source dont l’objectif est de permettre un accès gratuit à un grand nombre de données météorologiques. Provenant d’entités continentales et internationales (METAR, APRS, ECMWF…) et de plus de 40 000 stations privées, elles sont rassemblées puis rendues accessibles grâce au Big Data. 
 
+Il existe une version de Dewdrop sans utilisation du GPS et de GoogleMaps : https://github.com/c2o4/Dewdrop_Lite.
