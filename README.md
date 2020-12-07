@@ -1,4 +1,4 @@
-Dewdrop - Par Constant Colombo et Alexandre Guyard
+Dewdrop
 
 Dewdrop est une application de météo simple et pratique. Proposant immédiatement des prévisions sur trois jours en local, elle permet également de consulter la météo partout dans le monde sur trois jours.
 
